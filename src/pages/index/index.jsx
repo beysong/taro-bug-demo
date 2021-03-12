@@ -1,29 +1,12 @@
 import { Component } from "react";
 import { connect } from "react-redux";
 import { View, Button, Text } from "@tarojs/components";
-
-import { add, minus, asyncAdd } from "../../actions/counter";
+import RenderPro from "../../components/RenderPro";
 
 import "./index.scss";
 
-@connect(
-  ({ counter }) => ({
-    counter,
-  }),
-  (dispatch) => ({
-    add() {
-      dispatch(add());
-    },
-    dec() {
-      dispatch(minus());
-    },
-    asyncAdd() {
-      dispatch(asyncAdd());
-    },
-  })
-)
 class Index extends Component {
-  state = { open: false };
+  state = { open: false, sortValue: "" };
   componentWillReceiveProps(nextProps) {
     console.log(this.props, nextProps);
   }
@@ -34,42 +17,58 @@ class Index extends Component {
 
   componentDidHide() {}
 
+  handleOuter = (e) => {
+    console.log("我师父组件回调");
+  };
+
+  handleInner = (e) => {
+    e.stopPropagation();
+    console.log("这里阻止了冒泡");
+    this.setState({ open: !this.state.open });
+  };
+
   render() {
-    const { open } = this.state;
+    console.log("执行渲染了");
     return (
       <View className="index">
-        <View
-          onClick={() => {
-            this.setState({ open: true });
-          }}
-        >
-          打开dialog
-        </View>
-        <mp-dialog
-          show={open}
-          // onClick={handleSelect}
-          onButtonTap={(i) => {
-            console.log("onButtonTap", i);
-            this.setState({ open: !open });
-          }}
-          onClose={() => {
-            console.log("onClose");
-          }}
-          buttons={[
-            { text: "取消", extClass: "btn2" },
-            { text: "确定", extClass: "btn" },
+        <RenderPro
+          options={[
+            { label: "排序1", value: "1" },
+            { label: "排序2", value: "2" },
+            { label: "排序3", value: "3" },
           ]}
         >
-          <View
-            onClick={() => {
-              console.log("setOpen(!open)", open);
-              setOpen(!open);
-            }}
-            className="font16 title"
-          >
-            点击关闭
-          </View>
-        </mp-dialog>
+          {(open) => (
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <View style={{ display: "flex" }}>
+                <Button>排序</Button>
+
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log("inner");
+                    this.setState({
+                      isOpened: true,
+                    });
+                  }}
+                >
+                  渲染属性
+                </Button>
+              </View>
+            </View>
+          )}
+        </RenderPro>
+
+        <View onClick={this.handleOuter} style={{ marginTop: "30px" }}>
+          <Button onClick={this.handleInner}>这里正常的</Button>
+        </View>
       </View>
     );
   }
